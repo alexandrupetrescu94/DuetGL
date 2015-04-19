@@ -22,17 +22,17 @@ typedef struct
 typedef struct
 {
 	//down left
-	double xdl;
-	double ydl;
+	int xdl;
+	int ydl;
 	//up right
-	double xur;
-	double yur;
+	int xur;
+	int yur;
 	//down right
-	double xdr;
-	double ydr;
+	int xdr;
+	int ydr;
 	//up left
-	double xul;
-	double yul;
+	int xul;
+	int yul;
 } falling_object;
 
 ball red_ball; //20 20 30 30
@@ -57,7 +57,7 @@ void create_ball(double x, double y, int radius, ball &b) {
 	glEnd();
 }
 
-void create_falling_object(double x_dl, double y_dl, double x_ur, double y_ur, falling_object &fo) {
+void create_falling_object(int x_dl, int y_dl, int x_ur, int y_ur, falling_object &fo) {
 	fo.xdl = x_dl;
 	fo.ydl = y_dl;
 
@@ -71,6 +71,58 @@ void create_falling_object(double x_dl, double y_dl, double x_ur, double y_ur, f
 	fo.yul = y_dl;
 
 	glRecti(fo.xdl, fo.ydl, fo.xur, fo.yur);
+}
+
+int collision_dl_checker(falling_object fo, ball b) {
+	double radius;
+	radius = sqrt(
+			(fo.xdl - b.x_clicked_center)*(fo.xdl - b.x_clicked_center) +
+			(fo.ydl - b.y_clicked_center)*(fo.ydl - b.y_clicked_center)
+		);
+
+	if (radius < 5) 
+		return 0;
+	
+	return 1;
+}
+
+int collision_ur_checker(falling_object fo, ball b) {
+	double radius;
+	radius = sqrt(
+		(fo.xur - b.x_clicked_center)*(fo.xur - b.x_clicked_center) +
+		(fo.yur - b.y_clicked_center)*(fo.yur - b.y_clicked_center)
+		);
+
+	if (radius < 5)
+		return 0;
+
+	return 1;
+}
+
+int collision_dr_checker(falling_object fo, ball b) {
+	double radius;
+	radius = sqrt(
+			(fo.xdr - red_ball.x_clicked_center)*(fo.xdr - red_ball.x_clicked_center) +
+			(fo.ydr - red_ball.y_clicked_center)*(fo.ydr - red_ball.y_clicked_center)
+		);
+
+	if (radius < 5)
+		return 0;
+
+	return 1;
+}
+
+int collision_ul_checker(falling_object fo, ball b) {
+	double radius;
+	radius = sqrt(
+			(fo.xul - red_ball.x_clicked_center)*(fo.xul - red_ball.x_clicked_center) +
+			(fo.yul - red_ball.y_clicked_center)*(fo.yul - red_ball.y_clicked_center)
+		);
+
+	if (radius < 5)
+		return 0;
+
+	return 1;
 }
 
 void init(void)
@@ -130,30 +182,29 @@ void reshape(int w, int h)
 
 void falling_objects(void)
 {
+	red_ball.x_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
+	red_ball.y_clicked_center = sin(duet_ball_angle) * red_ball.x_center;
+	blue_ball.x_clicked_center = -red_ball.x_clicked_center;
+	blue_ball.y_clicked_center = -red_ball.y_clicked_center;
+	
 	i -= 0.1;
-	if (i < 280 && i > 220)
+	if (i < 281 && i > 219)
 	{
-		double dl, ul, dr, ur;
-		dl = sqrt(
-			(fo.xdl - red_ball.x_clicked_center)*(fo.xdl - red_ball.x_clicked_center) +
-			(fo.ydl - red_ball.y_clicked_center)*(fo.ydl - red_ball.y_clicked_center)
-			);
-		if (dl < 5)
-		{
+		//down left checker
+		if (!collision_dl_checker(fo, red_ball) && collision_dl_checker(fo, blue_ball))
 			cout << "Game Over";
-			exit(0);
-		}
-
-		dl = sqrt(
-			(fo.xdl - blue_ball.x_clicked_center)*(fo.xdl - blue_ball.x_clicked_center) +
-			(fo.ydl - blue_ball.y_clicked_center)*(fo.ydl - blue_ball.y_clicked_center)
-			);
-		if (dl < 5)
-		{
+		else
+		if (collision_ul_checker(fo, red_ball) && collision_ul_checker(fo, blue_ball))
 			cout << "Game Over";
-			exit(0);
-		}
+		else
+		if (collision_dr_checker(fo, red_ball) && collision_dr_checker(fo, blue_ball))
+			cout << "Game Over";
+		else
+		if (collision_dl_checker(fo, red_ball) && collision_dl_checker(fo, blue_ball))
+			cout << "Game Over";
 	}
+	
+	if (i == 150) i = 600;
 	glutPostRedisplay();
 }
 
@@ -161,34 +212,31 @@ void falling_objects_click_left(void)
 {
 	duet_ball_angle -= 0.1;
 	red_ball.x_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
-	red_ball.y_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
-	blue_ball.x_clicked_center = - red_ball.x_clicked_center;
-	blue_ball.y_clicked_center = - red_ball.x_clicked_center;
-
+	red_ball.y_clicked_center = sin(duet_ball_angle) * red_ball.x_center;
+	blue_ball.x_clicked_center = -red_ball.x_clicked_center;
+	blue_ball.y_clicked_center = -red_ball.y_clicked_center;
+	
 	i -= 0.1;
-	if (i < 280 && i > 220)
+	if (i < 281 && i > 219)
 	{
-		double dl, ul, dr, ur;
-		dl = sqrt( 
-				(fo.xdl - red_ball.x_clicked_center)*(fo.xdl - red_ball.x_clicked_center) +
-				(fo.ydl - red_ball.y_clicked_center)*(fo.ydl - red_ball.y_clicked_center)
-			);
-		if (dl < 5)
+		if (i < 281 && i > 219)
 		{
-			cout << "Game Over";
-			exit(0);
-		}
-
-		dl = sqrt(
-			(fo.xdl - blue_ball.x_clicked_center)*(fo.xdl - blue_ball.x_clicked_center) +
-			(fo.ydl - blue_ball.y_clicked_center)*(fo.ydl - blue_ball.y_clicked_center)
-			);
-		if (dl < 5)
-		{
-			cout << "Game Over";
-			exit(0);
+			//down left checker
+			if (!collision_dl_checker(fo, red_ball) && collision_dl_checker(fo, blue_ball))
+				cout << "Game Over";
+			else
+				if (collision_ul_checker(fo, red_ball) && collision_ul_checker(fo, blue_ball))
+					cout << "Game Over";
+				else
+					if (collision_dr_checker(fo, red_ball) && collision_dr_checker(fo, blue_ball))
+						cout << "Game Over";
+					else
+						if (collision_dl_checker(fo, red_ball) && collision_dl_checker(fo, blue_ball))
+							cout << "Game Over";
 		}
 	}
+
+	if (i == 150) i = 600;
 	glutPostRedisplay();
 }
 
@@ -196,34 +244,28 @@ void falling_objects_click_right(void)
 {
 	duet_ball_angle += 0.1;
 	red_ball.x_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
-	red_ball.y_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
+	red_ball.y_clicked_center = sin(duet_ball_angle) * red_ball.x_center;
 	blue_ball.x_clicked_center = -red_ball.x_clicked_center;
-	blue_ball.y_clicked_center = -red_ball.x_clicked_center;
+	blue_ball.y_clicked_center = -red_ball.y_clicked_center;
 
 	i -= 0.1;
-	if (i < 280 && i > 220)
+	if (i < 281 && i > 219)
 	{
-		double dl, ul, dr, ur;
-		dl = sqrt(
-			(fo.xdl - red_ball.x_clicked_center)*(fo.xdl - red_ball.x_clicked_center) +
-			(fo.ydl - red_ball.y_clicked_center)*(fo.ydl - red_ball.y_clicked_center)
-			);
-		if (dl < 5)
-		{
+		//down left checker
+		if (!collision_dl_checker(fo, red_ball) && collision_dl_checker(fo, blue_ball))
 			cout << "Game Over";
-			exit(0);
-		}
-
-		dl = sqrt(
-			(fo.xdl - blue_ball.x_clicked_center)*(fo.xdl - blue_ball.x_clicked_center) +
-			(fo.ydl - blue_ball.y_clicked_center)*(fo.ydl - blue_ball.y_clicked_center)
-			);
-		if (dl < 5)
-		{
-			cout << "Game Over";
-			exit(0);
-		}
+		else
+			if (collision_ul_checker(fo, red_ball) && collision_ul_checker(fo, blue_ball))
+				cout << "Game Over";
+			else
+				if (collision_dr_checker(fo, red_ball) && collision_dr_checker(fo, blue_ball))
+					cout << "Game Over";
+				else
+					if (collision_dl_checker(fo, red_ball) && collision_dl_checker(fo, blue_ball))
+						cout << "Game Over";
 	}
+
+	if (i == 150) i = 600;
 	glutPostRedisplay();
 }
 
