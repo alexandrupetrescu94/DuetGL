@@ -14,11 +14,30 @@ typedef struct
 {
 	double x_center;
 	double y_center;
+	double x_clicked_center;
+	double y_clicked_center;
 	int radius;
 } ball;
 
+typedef struct
+{
+	//down left
+	double xdl;
+	double ydl;
+	//up right
+	double xur;
+	double yur;
+	//down right
+	double xdr;
+	double ydr;
+	//up left
+	double xul;
+	double yul;
+} falling_object;
+
 ball red_ball; //20 20 30 30
 ball blue_ball; //-30 -30 -20 -20
+falling_object fo;
 
 void create_ball(double x, double y, int radius, ball &b) {
 	b.x_center = x;
@@ -36,6 +55,22 @@ void create_ball(double x, double y, int radius, ball &b) {
 			);
 	}
 	glEnd();
+}
+
+void create_falling_object(double x_dl, double y_dl, double x_ur, double y_ur, falling_object &fo) {
+	fo.xdl = x_dl;
+	fo.ydl = y_dl;
+
+	fo.xur = x_ur;
+	fo.yur = y_ur;
+
+	fo.xdr = x_ur;
+	fo.ydr = y_ur;
+
+	fo.xul = x_dl;
+	fo.yul = y_dl;
+
+	glRecti(fo.xdl, fo.ydl, fo.xur, fo.yur);
 }
 
 void init(void)
@@ -75,7 +110,8 @@ void scena(void)
 	glPushMatrix();
 	glTranslated(375.0, i, 0.0);
 	glColor3f(1.0, 0.0, 1.0);
-	glRecti(-15, -15, 15, 5);
+	//glRecti(-15, -15, 15, 5); //changed to void function
+	create_falling_object(-15,-15,15,15,fo);
 	glPopMatrix();
 
 	glutSwapBuffers();
@@ -103,19 +139,34 @@ void falling_objects(void)
 void falling_objects_click_left(void)
 {
 	duet_ball_angle -= 0.1;
+	red_ball.x_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
+	red_ball.y_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
+	blue_ball.x_clicked_center = - red_ball.x_clicked_center;
+	blue_ball.y_clicked_center = - red_ball.x_clicked_center;
 
 	i -= 0.1;
-	//if (i < 280 && i > 220)
-
+	if (i < 280 && i > 220)
+	{
+		float dl, ul, dr, ur;
+		dl = sqrt(red_ball.x_clicked_center);
+	}
 	glutPostRedisplay();
 }
 
 void falling_objects_click_right(void)
 {
 	duet_ball_angle += 0.1;
+	red_ball.x_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
+	red_ball.y_clicked_center = cos(duet_ball_angle) * red_ball.x_center;
+	blue_ball.x_clicked_center = -red_ball.x_clicked_center;
+	blue_ball.y_clicked_center = -red_ball.x_clicked_center;
 
 	i -= 0.1;
-	//if (i < 280 && i > 220)
+	if (i < 280 && i > 220)
+	{
+		float dl, ul, dr, ur;
+		dl = sqrt(red_ball.x_clicked_center);
+	}
 
 	glutPostRedisplay();
 }
