@@ -131,8 +131,29 @@ void reshape(int w, int h)
 void falling_objects(void)
 {
 	i -= 0.1;
-	//if (i < 280 && i > 220)
+	if (i < 280 && i > 220)
+	{
+		double dl, ul, dr, ur;
+		dl = sqrt(
+			(fo.xdl - red_ball.x_clicked_center)*(fo.xdl - red_ball.x_clicked_center) +
+			(fo.ydl - red_ball.y_clicked_center)*(fo.ydl - red_ball.y_clicked_center)
+			);
+		if (dl < 5)
+		{
+			cout << "Game Over";
+			exit(0);
+		}
 
+		dl = sqrt(
+			(fo.xdl - blue_ball.x_clicked_center)*(fo.xdl - blue_ball.x_clicked_center) +
+			(fo.ydl - blue_ball.y_clicked_center)*(fo.ydl - blue_ball.y_clicked_center)
+			);
+		if (dl < 5)
+		{
+			cout << "Game Over";
+			exit(0);
+		}
+	}
 	glutPostRedisplay();
 }
 
@@ -147,8 +168,26 @@ void falling_objects_click_left(void)
 	i -= 0.1;
 	if (i < 280 && i > 220)
 	{
-		float dl, ul, dr, ur;
-		dl = sqrt(red_ball.x_clicked_center);
+		double dl, ul, dr, ur;
+		dl = sqrt( 
+				(fo.xdl - red_ball.x_clicked_center)*(fo.xdl - red_ball.x_clicked_center) +
+				(fo.ydl - red_ball.y_clicked_center)*(fo.ydl - red_ball.y_clicked_center)
+			);
+		if (dl < 5)
+		{
+			cout << "Game Over";
+			exit(0);
+		}
+
+		dl = sqrt(
+			(fo.xdl - blue_ball.x_clicked_center)*(fo.xdl - blue_ball.x_clicked_center) +
+			(fo.ydl - blue_ball.y_clicked_center)*(fo.ydl - blue_ball.y_clicked_center)
+			);
+		if (dl < 5)
+		{
+			cout << "Game Over";
+			exit(0);
+		}
 	}
 	glutPostRedisplay();
 }
@@ -164,10 +203,27 @@ void falling_objects_click_right(void)
 	i -= 0.1;
 	if (i < 280 && i > 220)
 	{
-		float dl, ul, dr, ur;
-		dl = sqrt(red_ball.x_clicked_center);
-	}
+		double dl, ul, dr, ur;
+		dl = sqrt(
+			(fo.xdl - red_ball.x_clicked_center)*(fo.xdl - red_ball.x_clicked_center) +
+			(fo.ydl - red_ball.y_clicked_center)*(fo.ydl - red_ball.y_clicked_center)
+			);
+		if (dl < 5)
+		{
+			cout << "Game Over";
+			exit(0);
+		}
 
+		dl = sqrt(
+			(fo.xdl - blue_ball.x_clicked_center)*(fo.xdl - blue_ball.x_clicked_center) +
+			(fo.ydl - blue_ball.y_clicked_center)*(fo.ydl - blue_ball.y_clicked_center)
+			);
+		if (dl < 5)
+		{
+			cout << "Game Over";
+			exit(0);
+		}
+	}
 	glutPostRedisplay();
 }
 
