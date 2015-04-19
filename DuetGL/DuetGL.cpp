@@ -12,15 +12,15 @@ static GLdouble alpha = 1.0;
 
 typedef struct
 {
-	int x_center;
-	int y_center;
+	double x_center;
+	double y_center;
 	int radius;
 } ball;
 
 ball red_ball; //20 20 30 30
 ball blue_ball; //-30 -30 -20 -20
 
-void create_ball(int x, int y, int radius, ball &b) {
+void create_ball(double x, double y, int radius, ball &b) {
 	b.x_center = x;
 	b.y_center = y;
 	b.radius = radius;
@@ -56,7 +56,7 @@ void scena(void)
 	glRotated(duet_ball_angle, 0.0, 0.0, 1.0);
 	glColor3f(1.0, 0.0, 0.0);
 	//glRecti(20, 20, 30, 30); //Initial recti, but changed to ball 
-	create_ball(25, 25, 5, red_ball);
+	create_ball(25, 0, 5, red_ball);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -67,7 +67,7 @@ void scena(void)
 	glRotated(duet_ball_angle, 0.0, 0.0, 1.0);
 	glColor3f(0.0, 0.0, 1.0);
 	//glRecti(-30, -30, -20, -20); //Initial recti, but changed to ball 
-	create_ball(-25, -25, 5, blue_ball);
+	create_ball(-25, 0, 5, blue_ball);
 	glPopMatrix();
 	glPopMatrix();
 
@@ -92,38 +92,31 @@ void reshape(int w, int h)
 	glLoadIdentity();
 }
 
-void miscad()
-{
-	duet_ball_angle += 0.1;
-}
-
-void miscas()
-{
-	duet_ball_angle -= 0.1;
-	cout << "aa";
-}
-
 void falling_objects(void)
 {
 	i -= 0.1;
 	//if (i < 280 && i > 220)
-	//	cout << i << " ";
+
 	glutPostRedisplay();
 }
 
-void falling_objects_left(void)
+void falling_objects_click_left(void)
 {
-	i -= 0.1;
 	duet_ball_angle -= 0.1;
+
+	i -= 0.1;
 	//if (i < 280 && i > 220)
-	//	cout << i << " ";
+
 	glutPostRedisplay();
 }
 
-void falling_objects_right(void)
+void falling_objects_click_right(void)
 {
-	i -= 0.1;
 	duet_ball_angle += 0.1;
+
+	i -= 0.1;
+	//if (i < 280 && i > 220)
+
 	glutPostRedisplay();
 }
 
@@ -132,14 +125,14 @@ void mouse(int button, int state, int x, int y)
 	switch (button) {
 	case GLUT_LEFT_BUTTON:
 		if (state == GLUT_DOWN)
-			glutIdleFunc(falling_objects_left);
+			glutIdleFunc(falling_objects_click_left);
 		else
 			if (state == GLUT_UP)
 				glutIdleFunc(falling_objects);
 		break;
 	case GLUT_RIGHT_BUTTON:
 		if (state == GLUT_DOWN)
-			glutIdleFunc(falling_objects_right);
+			glutIdleFunc(falling_objects_click_right);
 		else
 			if (state == GLUT_UP)
 				glutIdleFunc(falling_objects);
