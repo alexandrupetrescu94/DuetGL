@@ -74,16 +74,28 @@ void create_falling_object(int x_dl, int y_dl, int x_ur, int y_ur, falling_objec
 	glRecti(x_dl, y_dl, x_ur, y_ur);
 }
 
-void recalculate_ball_center(ball &red_ball, ball &blue_ball) {
-	double x = cos(duet_ball_angle) * 25;
-	double y = sin(duet_ball_angle) * 25;
+void recalculate_ball_center() {
+	double x, y, afterpoint;
+
+	if (duet_ball_angle >= 0)
+	{
+		x = cos(duet_ball_angle*(PI/180)) * 25;
+		y = sin(duet_ball_angle*(PI/180)) * 25;
+	}
+	else
+	{
+		afterpoint = 1 - (duet_ball_angle - floor(duet_ball_angle));
+		x = cos(((360 + (int)floor(duet_ball_angle)) % 360 + afterpoint)*(PI / 180)) * 25;
+		y = sin(((360 + (int)floor(duet_ball_angle)) % 360 + afterpoint)*(PI / 180)) * 25;
+	}
 	red_ball.x_clicked_center = x + 350;
 	red_ball.y_clicked_center = y + 250;
 	blue_ball.x_clicked_center = -x + 350;
 	blue_ball.y_clicked_center = -y + 250;
+
 }
 
-void recalculate_falling_object(falling_object &fo) {
+void recalculate_falling_object() {
 	fo.ydl += i;
 	fo.yur += i;
 	fo.ydr += i;
@@ -201,8 +213,8 @@ void falling_objects(void)
 {
 	if (!collision_detected)
 	{
-		recalculate_ball_center(red_ball, blue_ball);
-		recalculate_falling_object(fo);
+		recalculate_ball_center();
+		recalculate_falling_object();
 
 		i -= 0.1;
 		if (i < 281 && i > 219)
@@ -211,15 +223,15 @@ void falling_objects(void)
 			if ( (fo.ydl <= red_ball.y_clicked_center + 5 && fo.xdl < red_ball.x_clicked_center && fo.xdr > red_ball.x_clicked_center) || 
 				 (fo.ydl <= blue_ball.y_clicked_center + 5 && fo.xdl < blue_ball.x_clicked_center && fo.xdr > blue_ball.x_clicked_center) )
 			{
-				cout << "fo.ydl" << fo.ydl <<endl;
+				collision_detected = true;
+				cout << "up coll";
+				cout << "fo.ydl" << fo.ydl << endl;
 				cout << "fo.xdl" << fo.xdl << endl;
 				cout << "fo.xdr" << fo.xdr << endl;
 				cout << "red_ball.x_clicked_center" << red_ball.x_clicked_center << endl;
 				cout << "red_ball.y_clicked_center" << red_ball.y_clicked_center << endl;
 				cout << "blue_ball.x_clicked_center" << blue_ball.x_clicked_center << endl;
 				cout << "blue_ball.y_clicked_center" << blue_ball.y_clicked_center << endl;
-				collision_detected = true;
-				cout << "up coll";
 			}
 
 			//South
@@ -261,15 +273,20 @@ void falling_objects(void)
 
 		glutPostRedisplay();
 	}
+	else
+	{
+		i = 600;
+		collision_detected = false;
+	}
 }
 
 void falling_objects_click_left(void)
 {
 	if (!collision_detected)
 	{
-		duet_ball_angle -= 0.1;
-		recalculate_ball_center(red_ball, blue_ball);
-		recalculate_falling_object(fo);
+		duet_ball_angle += 0.1;
+		recalculate_ball_center();
+		recalculate_falling_object();
 
 		i -= 0.1;
 		if (i < 281 && i > 219)
@@ -311,9 +328,9 @@ void falling_objects_click_right(void)
 {
 	if (!collision_detected)
 	{
-		duet_ball_angle += 0.1;
-		recalculate_ball_center(red_ball, blue_ball);
-		recalculate_falling_object(fo);
+		duet_ball_angle -= 0.1;
+		recalculate_ball_center();
+		recalculate_falling_object();
 
 		i -= 0.1;
 		if (i < 281 && i > 219)
@@ -358,19 +375,23 @@ void mouse(int button, int state, int x, int y)
 		if (state == GLUT_DOWN)
 		{
 			glutIdleFunc(falling_objects_click_left);
-			cout << "red_ball " << red_ball.x_clicked_center << " " << red_ball.y_clicked_center << endl;
-			cout << "blue_ball " << blue_ball.x_clicked_center << " " << blue_ball.y_clicked_center << endl;
 		}
 		else
 			if (state == GLUT_UP)
+			{
 				glutIdleFunc(falling_objects);
+			}
 		break;
 	case GLUT_RIGHT_BUTTON:
 		if (state == GLUT_DOWN)
+		{
 			glutIdleFunc(falling_objects_click_right);
+		}
 		else
 			if (state == GLUT_UP)
+			{
 				glutIdleFunc(falling_objects);
+			}
 		break;
 	}
 }
